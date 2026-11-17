@@ -1,7 +1,7 @@
 // src/services/tmdb.ts — chamadas TMDB sem React
 
 import axios from 'axios';
-import type { Movie, MoviesResponse } from '../types/movie';
+import type { MoviesResponse } from '../types/movie';
 
 const TOKEN = import.meta.env.VITE_TMDB_TOKEN as string | undefined;
 
@@ -32,13 +32,12 @@ tmdbClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Implemente fetchPopularMovies usando tmdbClient.
-//
-// Endpoint : GET /movie/popular
-// Parâmetros: { language: 'pt-BR', page }
-//
-// Dica: tmdbClient.get<MoviesResponse>('/movie/popular', { params: {...} })
-// e retorne o `data` da resposta.
-export async function fetchPopularMovies(_page = 1): Promise<MoviesResponse> {
-  throw new Error('TODO 1: fetchPopularMovies não implementada');
+// TODO 1 — GET /movie/popular com { language: 'pt-BR', page }.
+// Erros do axios (ex.: 401 de token inválido) não são capturados aqui:
+// eles sobem para quem chamou, que decide como mostrar.
+export async function fetchPopularMovies(page = 1): Promise<MoviesResponse> {
+  const { data } = await tmdbClient.get<MoviesResponse>('/movie/popular', {
+    params: { language: 'pt-BR', page },
+  });
+  return data;
 }

@@ -54,3 +54,32 @@ Fork + PR no repo público; link no Canvas. O **J.A.R.V.I.S.** lê o seu código
 Sem chave, o app usa a lista simulada (5 filmes). Para filmes reais: copie `.env.local.example` → `.env.local`,
 cole sua chave do TMDB (`TMDB_KEY=...`) e rode `./rodar.sh` / `rodar.bat` (ou F5 → "dados reais TMDB").
 O `.env.local` não vai pro git. Os testes (`flutter test`) nunca usam a chave.
+
+---
+
+## Entrega — Matheus Chaves
+
+### Como rodar
+```bash
+cd exercicios/03-flutter-ui-estado/pratica
+flutter pub get
+flutter run -d chrome --web-port 5300   # porta fixa: o cache offline é por endereço + porta
+flutter test                            # UI, estado, teste autoral e offline-first
+flutter analyze
+```
+Firebase: troque os placeholders de `lib/firebase_options.dart` pelos valores do seu projeto (`flutterfire configure` ou console → app Web). Sem isso o app roda, mas os favoritos ficam só em memória.
+
+### O que foi feito
+- **Ex1 (TASK 1):** `MovieCard` com pôster, título, nota (⭐) e ano.
+- **Ex2 (TASKs 2, 4, 5, 6):** `favoritesProvider` (`Notifier<Set<int>>` com `toggle`/`clear`) lido pelo card, pelo contador `♥ N` e pelo botão limpar.
+- **Ex3 (TASK 9):** testes do provider em `test/favorites_test.dart` com `ProviderContainer`.
+- **Ex4 (TASK 7):** o provider lê `favorites/meus-favoritos` no `build()` e grava com `.set()` em cada `toggle`/`clear` (atualização otimista).
+- **TASK 10:** `Settings(persistenceEnabled: true)` no `main.dart`.
+- **TASKs 11–15:** banner offline, `toJson`/`fromJson`, repositório cache-first com TTL e `SyncQueue` com cancelamento de ações opostas e `flush` que para no primeiro erro e persiste a cada envio.
+
+### Local × cloud × offline-first
+O estado **local** (Riverpod em memória) responde na hora e funciona sem rede, mas some no reload e fica preso a um único aparelho. O estado **cloud** (Firestore) sobrevive ao reload e sincroniza entre abas e dispositivos, em troca de latência, dependência de rede, regras de segurança e um serviço externo para manter. O **offline-first** combina os dois: a tela lê primeiro o que está no aparelho (cache com TTL), revalida na rede quando possível e guarda as escritas numa fila que é enviada na volta da conexão. O custo é complexidade: é preciso decidir quando o cache vence, como resolver conflitos (aqui, ações opostas no mesmo filme se cancelam) e o que fazer quando o envio falha no meio.
+
+### Evidências
+- Favorito sobrevivendo ao F5 (Firestore): _adicionar print/GIF aqui_
+- App offline (banner + lista do cache): _adicionar print aqui_
